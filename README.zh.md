@@ -1,53 +1,84 @@
 # NekoApp
 
-[NekoCLI](https://github.com/Ringaire/NekoCLI) 的桌面图形界面——AI 编程助手。
+<div align="center">
 
-基于 [Tauri](https://tauri.app) v2 + React + TypeScript + [shadcn/ui](https://ui.shadcn.com) 构建。
+**Desktop GUI for NekoCLI — Tauri + React**
 
-## 功能
+(Project in early stage. Version stays 0.x.x until first stable release. [Semantic Versioning 2.0](https://semver.org/))
 
-- 🖥️ 原生桌面应用（Linux/macOS/Windows）
-- 🤖 以子进程方式运行 NekoCLI，提供 AI 对话能力
-- 🔌 通过 WebSocket 连接 NekoRCA 实现远程控制
-- 📋 聊天界面，支持消息历史
-- ⚡ 实时流式响应
-- 🌙 深色/浅色主题支持
+[![Version](https://img.shields.io/badge/version-0.1.0-blue.svg)](https://github.com/Ringaire/NekoApp)
+[![Rust](https://img.shields.io/badge/rust-1.85+-orange.svg)](https://www.rust-lang.org/)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-orange.svg)](LICENSE)
 
-## 前置要求
+Desktop GUI for NekoCLI — spawns the AI coding assistant as a subprocess.
 
-- 已安装 [NekoCLI](https://github.com/Ringaire/NekoCLI) 并在 `$PATH` 中
+[Features](#features) • [Quick Start](#quick-start) • [Architecture](#architecture) • [Build](#build)
+
+</div>
+
+---
+
+## Features
+
+- 🖥️ **Native desktop app** — Tauri v2, cross-platform (Linux/macOS/Windows)
+- 🤖 **NekoCLI subprocess** — spawns `neko sdk` mode, JSON-line protocol
+- 🔌 **NekoRCA integration** — optional WebSocket connection to remote gateway
+- 📋 **Chat interface** — shadcn/ui based message list and input
+- 🌙 **Dark/Light theme** — follows system preference
+
+## Prerequisites
+
+- [NekoCLI](https://github.com/Ringaire/NekoCLI) installed and in `$PATH`
 - Node.js 18+ + pnpm
-- Rust 工具链（用于 Tauri）
+- Rust toolchain (for Tauri)
 
-## 开发
+## Quick Start
 
 ```bash
+git clone https://github.com/Ringaire/NekoApp.git
+cd NekoApp
 pnpm install
 pnpm tauri dev
 ```
 
-## 构建
-
-```bash
-pnpm tauri build
-```
-
-## 架构
+## Architecture
 
 ```
 NekoApp (Tauri)
-  ├── React 前端 ──invoke──→ Tauri Rust 后端
-  │                                │
-  │                        spawn neko sdk（子进程）
-  │                                │
-  │                         ┌──────┴──────┐
-  │                         │  Ollama API  │
-  │                         │ 或其他 LLM    │
-  │                         └─────────────┘
-  │
-  └── 可选：WS ──→ NekoRCA（远程网关）
+  ├── React frontend (Vite + shadcn/ui)
+  │     └── invoke("send_message")
+  └── Tauri Rust backend
+        └── spawn stdin/stdout
+              └── neko sdk ──→ LLM Provider
 ```
 
-## 许可证
+### Protocol
+
+Frontend calls Rust backend via Tauri IPC. Backend spawns `neko sdk` as subprocess with JSON-line protocol:
+
+```json
+// Input (React → Rust → neko stdin)
+{"id":"uuid","type":"message","payload":"hello"}
+
+// Output (neko stdout → Rust → React)
+{"id":"uuid","type":"text","payload":"response"}
+{"id":"uuid","type":"done","payload":""}
+```
+
+## Build
+
+```bash
+pnpm tauri build
+pnpm build       # frontend only
+```
+
+## Related Projects
+
+| Project | Description |
+|---------|-------------|
+| [NekoCLI](https://github.com/Ringaire/NekoCLI) | Terminal AI coding assistant |
+| [NekoRCA](https://github.com/Ringaire/NekoRCA) | Remote Control Adapter gateway |
+
+## License
 
 AGPL-3.0
