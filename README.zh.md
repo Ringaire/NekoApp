@@ -81,4 +81,4 @@ pnpm build       # frontend only
 
 ## License
 
-AGPL-3.0
+[AGPL-3.0](LICENSE)
